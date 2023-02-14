@@ -50,4 +50,35 @@ router.post('/', (req, res) => {
     }
 });
 
+router.put('/:id', (req, res) => {
+    const { title, contents } = req.body
+    if (!title || !contents) {
+        res.status(400).json({ message: 'Please provide title and contents for the post' });
+    } else {
+        Posts.findById(req.params.id)
+            .then(post => {
+                if (!post) {
+                    res.status(404).json({ message: 'The post with the specified ID does not exist' });
+                } else {
+                    return Posts.update(req.params.id, req.body);
+                }
+            })
+            .then(postsUpdated => {
+                if (postsUpdated) {
+                    return Posts.findById(req.params.id);
+                }
+            })
+            .then(post => {
+                if(post) {
+                    res.json(post);
+                }
+            })
+            .catch(error => {
+                res.status(500).json({ message: 'The posts information could not be retrieved' });
+            })
+    }
+});
+
+
+
 module.exports = router
